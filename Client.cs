@@ -8,7 +8,7 @@ namespace _3_In_A_Row_Client
 {
     class Client
     {
-        private static readonly string ipAddr = "192.168.1.176";
+        private static readonly string ipAddr = "192.168.1.234";
         private static readonly string path = AppDomain.CurrentDomain.BaseDirectory + "Records.txt";
 
         private static readonly string SoundLocation = AppDomain.CurrentDomain.BaseDirectory + "win.wav";
@@ -46,15 +46,16 @@ namespace _3_In_A_Row_Client
                     Console.Write("Choose a column: ");
                     int column = Convert.ToInt32(Console.ReadLine()) - 1;
                     Console.WriteLine("");
-                    UpdateIndex(row, column);
-                    byte[] send = EncodeData(GridToString(grid));
-                    strm.Write(send, 0, send.Length);
+                    UpdateIndex(row, column,strm);
+                    //byte[] send = EncodeData(GridToString(grid));
+                    //strm.Write(send, 0, send.Length);
                 }
                 else
                 {
                     Console.WriteLine("Awaiting Opponent's response...");
                     strm.Read(b, 0, b.Length);
                     grid = StringToGrid(DecodeData(b));
+                    turn = (turn == 'X' ? 'O' : 'X');
                 }
                 Console.Clear();
                 Console.WriteLine("");
@@ -160,13 +161,16 @@ namespace _3_In_A_Row_Client
             }
         }
 
-        public static void UpdateIndex(int row, int column)
+        public static void UpdateIndex(int row, int column, Stream strm)
         {
             try
             {
                 if (grid[row, column].Equals(' '))
                 {
                     grid[row, column] = (turn == 'X' ? 'X' : 'O');
+                    byte[] send = EncodeData(GridToString(grid));
+                    strm.Write(send, 0, send.Length);
+                    turn = (turn == 'X' ? 'O' : 'X');
                 }
                 else if (!grid[row, column].Equals(' '))
                 {
@@ -195,7 +199,7 @@ namespace _3_In_A_Row_Client
                 if (turn == 'O')
                     player.Play();
             }
-            turn = (turn == 'X' ? 'O' : 'X');
+            //turn = (turn == 'X' ? 'O' : 'X');
         }
     }
 }
